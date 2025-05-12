@@ -13,3 +13,7 @@ tracing-subscriber = { version = "0.3.19" }
 tracing-log = { version = "0.2.0" }
 tracing = { version = "0.1.41" }
 thiserror = { version = "2.0.12" }
+
+opentelemetry_sdk = { version = "0.29.0", features = ["logs"] }
+opentelemetry-stdout = { version = "0.29.0", features = ["logs"] }
+opentelemetry-appender-tracing = { version = "0.29.1"}
