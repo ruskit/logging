@@ -88,6 +88,17 @@ pub fn setup(cfg: &AppConfigs) -> Result<(), LoggingError> {
 
     let mut fmt_pretty: Option<Layer<_, Pretty, Format<Pretty>>> = None;
     let mut fmt_json = None;
+    let base_fmt_layer = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stderr)
+        .event_format(
+            tracing_subscriber::fmt::format()
+                .with_thread_ids(true)
+                .with_thread_names(true)
+                .with_ansi(cfg.env == Environment::Local)
+                .with_level(true)
+                .with_target(true)
+                .compact(),
+        );
 
     if cfg.env == Environment::Local {
         fmt_pretty = Some(Layer::new().pretty());
@@ -100,19 +111,7 @@ pub fn setup(cfg: &AppConfigs) -> Result<(), LoggingError> {
 
     match tracing::subscriber::set_global_default(
         tracing_subscriber::registry()
-            .with(
-                tracing_subscriber::fmt::layer()
-                    .with_writer(std::io::stderr)
-                    .event_format(
-                        tracing_subscriber::fmt::format()
-                            .with_thread_ids(true)
-                            .with_thread_names(true)
-                            .with_ansi(cfg.env == Environment::Local)
-                            .with_level(true)
-                            .with_target(true)
-                            .compact(),
-                    ),
-            )
+            .with(base_fmt_layer)
             .with(fmt_json)
             .with(fmt_pretty)
             .with(target_filters),
