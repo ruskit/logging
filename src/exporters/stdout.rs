@@ -2,7 +2,7 @@ use crate::{
     errors::LoggingError,
     exporters::{envs::app_name, filters::target_filters},
 };
-use configs::{DynamicConfigs, Environment};
+use configs::Environment;
 use opentelemetry::KeyValue;
 use opentelemetry_appender_tracing::layer;
 use opentelemetry_sdk::{Resource, logs::SdkLoggerProvider};
@@ -18,10 +18,7 @@ use tracing_subscriber::{
     prelude::*,
 };
 
-pub fn install<T>() -> Result<SdkLoggerProvider, LoggingError>
-where
-    T: DynamicConfigs,
-{
+pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
     let app_environment = Environment::from_rust_env();
     let app_name = app_name();
 

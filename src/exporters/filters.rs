@@ -2,6 +2,7 @@ use super::envs::log_level;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::filter::Targets;
 
+#[allow(dead_code)]
 pub fn target_filters() -> Targets {
     let level_filter = log_level();
 

@@ -23,6 +23,7 @@ use tracing::level_filters::LevelFilter;
 /// - "error", "Error", "ERROR" -> `LevelFilter::ERROR`
 /// - "trace", "Trace", "TRACE" -> `LevelFilter::TRACE`
 /// - Any other value -> `LevelFilter::OFF`
+#[allow(dead_code)]
 pub fn log_level() -> LevelFilter {
     let level = std::env::var("LOG_LEVEL")
         .unwrap_or_else(|_| "info".to_string())
@@ -38,10 +39,12 @@ pub fn log_level() -> LevelFilter {
     }
 }
 
+#[allow(dead_code)]
 pub fn app_name() -> String {
     std::env::var("APP_NAME").unwrap_or_else(|_| "default-app-name".to_string())
 }
 
+#[allow(dead_code)]
 pub fn otlp_exporter_host() -> String {
     std::env::var("OTLP_EXPORTER_HOST").unwrap_or_else(|_| "localhost:4317".to_string())
 }
