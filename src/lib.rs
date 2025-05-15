@@ -4,28 +4,38 @@
 
 //! # Ruskit Logging
 //!
-//! A structured logging library for Rust applications in the Ruskit framework.
+//! This crate provides a structured logging system for Rust applications within the Ruskit
+//! framework. It's built on top of the `tracing` and `opentelemetry` ecosystems to provide
+//! powerful logging capabilities with minimal configuration.
 //!
-//! This crate provides a simple yet powerful interface for configuring application logging,
-//! using the `tracing` ecosystem internally. It supports different log formats based on the
-//! environment (pretty formatting for local development and JSON/Bunyan for production).
+//! The crate offers environment-aware formatting (pretty-printed logs for local development,
+//! JSON/Bunyan format for production), configurable log levels, and filtering for external
+//! dependencies.
 //!
-//! ## Example
+//! ## Features
 //!
-//! ```rust
-//! use logging;
-//! use configs::AppConfigs;
+//! - **Configurable exporters**: Supports multiple logging backends (stdout, OTLP/gRPC)
+//! - **Environment-aware formatting**: Format logs appropriately for different environments
+//! - **Targeted filtering**: Control verbosity of external dependencies
+//! - **OpenTelemetry integration**: Seamless integration with OpenTelemetry tracing
+//!
+//! ## Usage
+//!
+//! ```
+//! use logging::provider;
 //!
 //! fn main() {
-//!     let app_configs = AppConfigs::default();
-//!     logging::setup(&app_configs).expect("Failed to set up logging");
+//!     // Initialize the logging system
+//!     let provider = provider::install().expect("Failed to initialize logging");
 //!     
-//!     // Now you can use tracing macros for logging
+//!     // Use tracing macros for logging
 //!     tracing::info!("Application started");
+//!     
+//!     // Structured logging
+//!     tracing::info!(user_id = "123", "User logged in");
 //! }
 //! ```
 
 pub mod errors;
-mod logger;
-
-pub use logger::setup;
+pub mod exporters;
+pub mod provider;
