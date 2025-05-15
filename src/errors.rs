@@ -23,4 +23,7 @@ pub enum LoggingError {
     /// global tracing subscriber or other internal logging components.
     #[error("logging internal error")]
     InternalError,
+
+    #[error("this exporter requires specific features")]
+    InvalidFeaturesError,
 }
