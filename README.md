@@ -1,16 +1,21 @@
-# Logging Crate
+# Ruskit Logging
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Crate Status](https://img.shields.io/badge/status-stable-green.svg)
 
-A structured logging library for Rust applications in the Ruskit framework, built on top of the `tracing` ecosystem.
+A structured logging library for Rust applications in the Ruskit framework, built on top of the `tracing` and `opentelemetry` ecosystems.
 
 ## Features
 
-- **Environment-aware formatting**: Pretty-printed logs for local development, JSON/Bunyan format for production
-- **Configurable log levels**: Easily set log levels based on application configuration
-- **External crate filtering**: Control the verbosity of logs from external dependencies
-- **Seamless integration**: Works with Ruskit's configuration system out of the box
+- **Multiple exporters**: Support for different logging backends
+  - Standard output (stdout) for local development and simple deployments
+  - OpenTelemetry Protocol (OTLP) over gRPC for distributed tracing and observability
+- **Environment-aware formatting**: 
+  - Pretty-printed logs for local development
+  - JSON/Bunyan format for production environments
+- **Intelligent filtering**: Automatically controls verbosity of common external dependencies
+- **OpenTelemetry integration**: Seamless integration with the OpenTelemetry ecosystem
+- **Feature-gated components**: Only include the exporters you need via Cargo features
 
 ## Installation
 
@@ -19,24 +24,23 @@ Add the logging crate to your `Cargo.toml`:
 ```toml
 [dependencies]
 configs = { git = "https://github.com/ruskit/configs.git", tag = "v0.0.1" }
-logging = { git = "https://github.com/ruskit/logging.git", tag = "v0.0.1" }
+logging = { git = "https://github.com/ruskit/logging.git", tag = "v0.0.1", features = ["stdout"] }
 ```
+
+### Available Features
+
+- `stdout` - Enable the standard output exporter (default)
+- `otlp` - Enable the OpenTelemetry Protocol (OTLP) over gRPC exporter
 
 ## Usage
 
-The logging crate is designed to work with the Ruskit configuration system. Here's a basic example:
-
 ```rust
-use configs::AppConfigs;
-use logging;
+use logging::provider;
 use tracing::{info, warn, error, debug, trace};
 
 fn main() {
-    // Initialize application configs
-    let app_configs = AppConfigs::default();
-    
-    // Set up structured logging
-    logging::setup(&app_configs).expect("Failed to set up logging");
+    // Initialize the logging system
+    let _provider = provider::install().expect("Failed to initialize logging");
     
     // Now you can use tracing macros for logging
     info!("Application started");
@@ -49,53 +53,72 @@ fn main() {
     info!(
         user_id = "abc123", 
         request_path = "/api/users",
-        "User request processed"
+        "User request processed successfully"
     );
 }
 ```
 
-### Configuration Options
+## Configuration
 
-The logging behavior can be controlled through the `AppConfigs` structure:
+The logging library reads configuration from the Ruskit `configs` crate:
+
+### For Stdout Exporter
+
+The behavior is controlled through `AppConfigs`:
 
 ```rust
-// Set log level (debug, info, warn, error, trace)
-app_configs.log_level = "info".to_owned();
+use configs::app::{AppConfigs, Environment};
 
-// Control external crate logs
-app_configs.enable_external_creates_logging = false;
-
-// Environment affects output format (Local = pretty, others = JSON)
-app_configs.env = Environment::Local;
+let app_configs = AppConfigs {
+    name: "my-service".to_string(),
+    env: Environment::Local, // Affects output format (Local = pretty, others = JSON)
+    // ... other fields
+};
 ```
 
-## How It Works
+### For OTLP Exporter
 
-When you call `logging::setup(&app_configs)`, the library configures a global `tracing` subscriber based on your application configuration:
+When using the OTLP exporter, additional configuration is read from `OTLPConfigs`:
 
-1. It initializes the log tracer to capture logs from the standard Rust `log` crate
-2. Configures the log level filter based on your application configuration
-3. Sets up target-specific filters for external crates when `enable_external_creates_logging` is false
-4. Selects the appropriate output format (pretty-printed for local development, JSON/Bunyan for production)
-5. Registers the global subscriber
+```rust
+use configs::otlp::OTLPConfigs;
 
-## Log Levels
+let otlp_configs = OTLPConfigs {
+    endpoint: "http://localhost:4317".to_string(),
+    exporter_timeout: std::time::Duration::from_secs(10),
+    // ... other fields
+};
+```
 
-The crate supports the following log levels:
+## Log Filtering
 
-- **ERROR**: Only critical errors
-- **WARN**: Warnings and errors 
-- **INFO**: General information, warnings, and errors (default)
-- **DEBUG**: Detailed debugging information plus info, warnings, and errors
-- **TRACE**: The most verbose logging level
+The library automatically applies targeted filtering for common external libraries:
+
+```
+lapin, tower, h2, hyper, rustls, paho_mqtt, aws_* ...
+```
+
+These libraries are set to only show WARNING and higher severity logs, reducing noise in your application logs while maintaining your configured log level for your own code.
+
+## Under the Hood
+
+The Ruskit logging library creates an OpenTelemetry-compatible logging provider with the following components:
+
+1. An `SdkLoggerProvider` configured with appropriate resources (service name, environment)
+2. Environment-aware formatting (pretty or JSON/Bunyan)
+3. Targeted filters for common external dependencies
+4. OpenTelemetry bridge for tracing integration
 
 ## Dependencies
 
-- `configs`: Ruskit configuration management
+- `opentelemetry`: Core OpenTelemetry API
+- `opentelemetry_sdk`: Implementation of the OpenTelemetry API
+- `opentelemetry_stdout`: OpenTelemetry exporter for standard output
+- `opentelemetry_otlp`: OpenTelemetry exporter for OTLP protocol
 - `tracing`: Core tracing infrastructure
 - `tracing-subscriber`: Subscriber management and filtering
 - `tracing-bunyan-formatter`: JSON/Bunyan output format
-- `tracing-log`: Bridge between log and tracing crates
+- `configs`: Ruskit configuration management
 - `thiserror`: Error handling
 
 ## License
@@ -104,4 +127,4 @@ MIT License - See [LICENSE](LICENSE) for details
 
 ## Ruskit Ecosystem
 
-This crate is part of the [Ruskit](https://github.com/ruskit) ecosystem, which provides a modular toolkit for building robust Rust applications with built-in support for configuration management, structured logging, secrets management, and more.
+This crate is part of the [Ruskit](https://github.com/ruskit) ecosystem, which provides a modular toolkit for building robust Rust applications with built-in support for configuration management, structured logging, observability, and more.
