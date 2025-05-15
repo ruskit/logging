@@ -1,10 +1,14 @@
+// Copyright (c) 2025, The Ruskit Authors
+// MIT License
+// All rights reserved.
+
 use super::envs::log_level;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::filter::Targets;
 
 #[allow(dead_code)]
-pub fn target_filters() -> Targets {
-    let level_filter = log_level();
+pub fn target_filters(level: &str) -> Targets {
+    let level_filter = log_level(level);
 
     Targets::new()
         .with_default(level_filter)

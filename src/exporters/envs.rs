@@ -1,3 +1,7 @@
+// Copyright (c) 2025, The Ruskit Authors
+// MIT License
+// All rights reserved.
+
 use tracing::level_filters::LevelFilter;
 
 /// Converts a string log level into a `LevelFilter` for tracing.
@@ -24,12 +28,8 @@ use tracing::level_filters::LevelFilter;
 /// - "trace", "Trace", "TRACE" -> `LevelFilter::TRACE`
 /// - Any other value -> `LevelFilter::OFF`
 #[allow(dead_code)]
-pub fn log_level() -> LevelFilter {
-    let level = std::env::var("LOG_LEVEL")
-        .unwrap_or_else(|_| "info".to_string())
-        .to_lowercase();
-
-    match level.as_str() {
+pub fn log_level(level: &str) -> LevelFilter {
+    match level {
         "debug" | "Debug" | "DEBUG" => LevelFilter::DEBUG,
         "info" | "Info" | "INFO" => LevelFilter::INFO,
         "warn" | "Warn" | "WARN" => LevelFilter::WARN,
@@ -37,14 +37,4 @@ pub fn log_level() -> LevelFilter {
         "trace" | "Trace" | "TRACE" => LevelFilter::TRACE,
         _ => LevelFilter::OFF,
     }
-}
-
-#[allow(dead_code)]
-pub fn app_name() -> String {
-    std::env::var("APP_NAME").unwrap_or_else(|_| "default-app-name".to_string())
-}
-
-#[allow(dead_code)]
-pub fn otlp_exporter_host() -> String {
-    std::env::var("OTLP_EXPORTER_HOST").unwrap_or_else(|_| "localhost:4317".to_string())
 }

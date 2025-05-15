@@ -1,3 +1,7 @@
+// Copyright (c) 2025, The Ruskit Authors
+// MIT License
+// All rights reserved.
+
 mod envs;
 mod filters;
 

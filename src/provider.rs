@@ -1,3 +1,7 @@
+// Copyright (c) 2025, The Ruskit Authors
+// MIT License
+// All rights reserved.
+
 use crate::errors::LoggingError;
 use opentelemetry_sdk::logs::SdkLoggerProvider;
 
@@ -5,5 +9,15 @@ use opentelemetry_sdk::logs::SdkLoggerProvider;
 use crate::exporters;
 
 pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
-    todo!()
+    #[cfg(feature = "stdout")]
+    {
+        return exporters::stdout::install();
+    }
+
+    #[cfg(feature = "otlp")]
+    {
+        return exporters::stdout::install();
+    }
+
+    Err(LoggingError::InvalidFeaturesError)
 }
