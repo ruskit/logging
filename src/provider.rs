@@ -51,7 +51,7 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
 
     #[cfg(feature = "otlp")]
     {
-        return exporters::stdout::install();
+        return exporters::otlp_grpc::install();
     }
 
     Err(LoggingError::InvalidFeaturesError)
