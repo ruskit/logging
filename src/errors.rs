@@ -24,6 +24,6 @@ pub enum LoggingError {
     #[error("logging internal error")]
     InternalError,
 
-    #[error("this exporter requires specific features")]
+    #[error("this exporter requires specific features, allowed features are: otlp and stdout")]
     InvalidFeaturesError,
 }
