@@ -9,10 +9,8 @@
 //! logging in applications using this crate.
 
 use crate::errors::LoggingError;
-use opentelemetry_sdk::logs::SdkLoggerProvider;
-
-#[cfg(any(feature = "otlp", feature = "stdout"))]
 use crate::exporters;
+use opentelemetry_sdk::logs::SdkLoggerProvider;
 
 /// Installs and configures the logging system based on enabled features.
 ///
@@ -54,5 +52,6 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
         return exporters::otlp_grpc::install();
     }
 
-    Err(LoggingError::InvalidFeaturesError)
+    #[cfg(not(any(feature = "stdout", feature = "otlp")))]
+    return exporters::noop::install();
 }
