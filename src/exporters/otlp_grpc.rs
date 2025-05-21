@@ -58,6 +58,9 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
                 .with_ansi(app_cfgs.env.is_local())
                 .with_level(true)
                 .with_target(true)
+                .with_file(true)
+                .with_line_number(true)
+                .with_source_location(true)
                 .compact(),
         );
 
@@ -72,7 +75,7 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
         ));
     }
 
-    let filters = target_filters(&app_cfgs.env.to_string());
+    let filters = target_filters(&app_cfgs.log_level);
     let otel_layer = layer::OpenTelemetryTracingBridge::new(&provider).with_filter(filters.clone());
 
     match tracing::subscriber::set_global_default(
