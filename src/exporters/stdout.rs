@@ -16,6 +16,7 @@ use opentelemetry_sdk::{Resource, logs::SdkLoggerProvider};
 use opentelemetry_stdout::LogExporter;
 use tracing::error;
 use tracing_bunyan_formatter::BunyanFormattingLayer;
+use tracing_log::LogTracer;
 use tracing_subscriber::{
     fmt::{
         Layer,
@@ -59,6 +60,17 @@ use tracing_subscriber::{
 pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
     let app_cfgs = AppConfigs::new();
 
+    match LogTracer::init() {
+        Err(err) => {
+            error!(
+                error = ?err,
+                "failure to initialize logger, probably the log was already initialized"
+            );
+            Ok(())
+        }
+        _ => Ok(()),
+    }?;
+
     let exporter = LogExporter::default();
     let provider: SdkLoggerProvider = SdkLoggerProvider::builder()
         .with_resource(
@@ -80,6 +92,9 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
                 .with_ansi(app_cfgs.env.is_local())
                 .with_level(true)
                 .with_target(true)
+                .with_file(true)
+                .with_line_number(true)
+                .with_source_location(true)
                 .compact(),
         );
 
@@ -94,7 +109,7 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
         ));
     }
 
-    let filters = target_filters(&app_cfgs.env.to_string());
+    let filters = target_filters(&app_cfgs.log_level);
     let otel_layer = layer::OpenTelemetryTracingBridge::new(&provider).with_filter(filters.clone());
 
     match tracing::subscriber::set_global_default(
@@ -109,8 +124,6 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
             error!(error = ?err, "failure to set tracing subscribe");
             return Err(LoggingError::InternalError {});
         }
-        _ => {}
+        _ => Ok(provider),
     }
-
-    Ok(provider)
 }
