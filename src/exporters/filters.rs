@@ -55,5 +55,5 @@ pub fn target_filters(level: &str) -> Targets {
         .with_target("aws_config", LevelFilter::WARN)
         .with_target("aws_sdk_secretsmanager", LevelFilter::WARN)
         .with_target("aws_runtime", LevelFilter::WARN)
-        .with_target("log", LevelFilter::WARN)
+        .with_target("opentelemetry_sdk", LevelFilter::WARN)
 }
