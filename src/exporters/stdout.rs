@@ -76,6 +76,10 @@ pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
         .with_resource(
             Resource::builder()
                 .with_service_name(app_cfgs.name.clone())
+                .with_attribute(KeyValue::new(
+                    "service.namespace",
+                    format!("{}", app_cfgs.namespace),
+                ))
                 .with_attribute(KeyValue::new("environment", format!("{}", app_cfgs.env)))
                 .with_attribute(KeyValue::new("library.language", "rust"))
                 .build(),

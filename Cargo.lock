@@ -604,6 +604,7 @@ dependencies = [
 [[package]]
 name = "configs"
 version = "0.0.1"
+source = "git+ssh://git@github.com/ruskit/configs.git?rev=beta-v0.0.4#3b98dd9d106db6c1447a6e1166cf8d66e243eda7"
 dependencies = [
  "secrets-manager",
  "serde",
