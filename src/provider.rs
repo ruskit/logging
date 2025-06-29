@@ -18,6 +18,13 @@ use opentelemetry_sdk::logs::SdkLoggerProvider;
 /// in applications. It configures the appropriate logging exporter based on
 /// the feature flags that were enabled when compiling the crate.
 ///
+/// ## Feature Priority
+///
+/// When multiple features are enabled, the priority order is:
+/// 1. **otlp**: Uses the OpenTelemetry OTLP gRPC exporter (highest priority)
+/// 2. **stdout**: Uses the standard output exporter
+/// 3. **none**: Falls back to the noop exporter (no external export, console only)
+///
 /// # Returns
 ///
 /// * `Result<SdkLoggerProvider, LoggingError>` - On success, returns the configured
@@ -25,12 +32,12 @@ use opentelemetry_sdk::logs::SdkLoggerProvider;
 ///
 /// # Errors
 ///
-/// Returns `LoggingError::InvalidFeaturesError` if no supported exporter features
-/// (like "stdout" or "otlp") are enabled.
+/// Returns `LoggingError::InternalError` if there's a problem setting up the
+/// chosen exporter.
 ///
 /// # Examples
 ///
-/// ```
+/// ```no_run
 /// use logging::provider;
 ///
 /// fn main() {
@@ -42,16 +49,22 @@ use opentelemetry_sdk::logs::SdkLoggerProvider;
 /// }
 /// ```
 pub fn install() -> Result<SdkLoggerProvider, LoggingError> {
-    #[cfg(feature = "stdout")]
-    {
-        return exporters::stdout::install();
-    }
-
+    // Prioritize OTLP over stdout if both are enabled
     #[cfg(feature = "otlp")]
     {
+        println!("Using OTLP exporter for logging");
         return exporters::otlp_grpc::install();
     }
 
+    #[cfg(all(feature = "stdout", not(feature = "otlp")))]
+    {
+        println!("Using stdout exporter for logging");
+        return exporters::stdout::install();
+    }
+
     #[cfg(not(any(feature = "stdout", feature = "otlp")))]
-    return exporters::noop::install();
+    {
+        println!("No supported logging exporter features enabled. Using noop exporter.");
+        return exporters::noop::install();
+    }
 }
