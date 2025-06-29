@@ -1,7 +1,19 @@
 # Ruskit Logging
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-![Crate Status](https://img.shields.io/badge/status-stable-green.svg)
+![Crate Status](https://img.shield## Dependencies
+
+- `opentelemetry` (v0.30.0): Core OpenTelemetry API
+- `opentelemetry_sdk` (v0.30.0): Implementation of the OpenTelemetry API
+- `opentelemetry_stdout` (v0.30.0): OpenTelemetry exporter for standard output
+- `opentelemetry_otlp` (v0.30.0): OpenTelemetry exporter for OTLP protocol
+- `opentelemetry-appender-tracing` (v0.30.1): OpenTelemetry tracing bridge
+- `tracing` (v0.1.41): Core tracing infrastructure
+- `tracing-subscriber` (v0.3.19): Subscriber management and filtering
+- `tracing-opentelemetry` (v0.31.0): OpenTelemetry integration for tracing
+- `tracing-bunyan-formatter` (v0.3.10): JSON/Bunyan output format
+- `configs`: Ruskit configuration management
+- `thiserror` (v2.0.12): Error handlingstatus-stable-green.svg)
 
 A structured logging library for Rust applications in the Ruskit framework, built on top of the `tracing` and `opentelemetry` ecosystems.
 
@@ -24,13 +36,21 @@ Add the logging crate to your `Cargo.toml`:
 ```toml
 [dependencies]
 configs = { git = "https://github.com/ruskit/configs.git", tag = "v0.0.1" }
-logging = { git = "https://github.com/ruskit/logging.git", tag = "v0.0.1", features = ["stdout"] }
+logging = { git = "https://github.com/ruskit/logging.git", tag = "v0.0.1" }
 ```
 
 ### Available Features
 
 - `stdout` - Enable the standard output exporter (default)
 - `otlp` - Enable the OpenTelemetry Protocol (OTLP) over gRPC exporter
+- `noop` - Enable the no-operation exporter (console only, no external export)
+
+### Feature Priority
+
+When multiple features are enabled, the priority order is:
+1. **otlp**: Uses the OpenTelemetry OTLP gRPC exporter (highest priority)
+2. **stdout**: Uses the standard output exporter
+3. **noop**: Falls back to console-only logging (no external export)
 
 ## Usage
 

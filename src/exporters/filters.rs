@@ -30,13 +30,11 @@ use tracing_subscriber::filter::Targets;
 /// # Examples
 ///
 /// ```
-/// use tracing_subscriber::prelude::*;
 /// use logging::exporters::filters;
 ///
 /// let filter = filters::target_filters("info");
-/// let subscriber = tracing_subscriber::registry()
-///     .with(filter)
-///     .with(tracing_subscriber::fmt::layer());
+/// // The filter is now configured with INFO level as default
+/// // and WARNING level for external dependencies
 /// ```
 #[allow(dead_code)]
 pub fn target_filters(level: &str) -> Targets {

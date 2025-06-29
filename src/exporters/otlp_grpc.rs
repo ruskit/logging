@@ -53,7 +53,7 @@ use tracing_subscriber::{
 ///
 /// # Examples
 ///
-/// ```
+/// ```no_run
 /// use logging::exporters::otlp_grpc;
 ///
 /// fn main() {

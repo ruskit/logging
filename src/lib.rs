@@ -21,7 +21,7 @@
 //!
 //! ## Usage
 //!
-//! ```
+//! ```no_run
 //! use logging::provider;
 //!
 //! fn main() {

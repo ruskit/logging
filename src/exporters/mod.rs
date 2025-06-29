@@ -18,7 +18,7 @@
 //! environment variable handling and target filtering.
 
 mod envs;
-mod filters;
+pub mod filters;
 
 #[cfg(feature = "otlp")]
 pub mod otlp_grpc;

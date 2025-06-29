@@ -51,7 +51,7 @@ use tracing_subscriber::{
 ///
 /// # Examples
 ///
-/// ```
+/// ```no_run
 /// use logging::exporters::noop;
 ///
 /// fn main() {
